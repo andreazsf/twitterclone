@@ -1,0 +1,77 @@
+// app global css in SCSS form
+
+.text-8 {
+  font-size: 8px;
+}
+
+.text-12 {
+  font-size: 12px;
+}
+
+.text-15 {
+  font-size: 15px;
+}
+
+.text-16 {
+  font-size: 16px;
+}
+
+.text-20 {
+  font-size: 20px;
+}
+
+.text-24 {
+  font-size: 24px;
+}
+
+.text-32 {
+  font-size: 32px;
+}
+
+// .text-caption {
+//   padding: none !important;
+//   line-height: 0.1 !important;
+// }
+
+.border-top {
+  border-top: 0.5px solid rgba(255, 255, 255, 0.2);
+}
+.border-bottom {
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.2);
+}
+
+.border-right {
+  border-right: 0.5px solid rgba(255, 255, 255, 0.2);
+}
+
+.border-left {
+  border-left: 0.5px solid rgba(255, 255, 255, 0.2);
+}
+
+.search-bar,
+.my-card {
+  max-width: 320px;
+  border-radius: 20px;
+}
+
+input,
+input::placeholder {
+  color: grey !important;
+}
+
+q-item {
+  border-radius: 20px;
+}
+
+// input:focus {
+//   background-color: black !important;
+// }
+
+.header-tab {
+  min-width: 50%;
+}
+
+.rounded-border-b {
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
