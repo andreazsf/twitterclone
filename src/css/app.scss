@@ -1,5 +1,10 @@
 // app global css in SCSS form
 
+// COLOR REFERENCES
+// grey-8 for texts
+// grey-9 for separators
+// grey-10 for bg cards
+
 .text-8 {
   font-size: 8px;
 }
@@ -56,7 +61,7 @@
 
 input,
 input::placeholder {
-  color: grey !important;
+  color: lightgray !important;
 }
 
 q-item {
@@ -75,3 +80,41 @@ q-item {
   border-bottom-left-radius: 20px;
   border-bottom-right-radius: 20px;
 }
+
+.newTweet textarea {
+  color: white !important;
+  line-height: 1.4 !important;
+}
+
+.newTweet textarea::placeholder {
+  color: grey !important;
+  line-height: 1.4 !important;
+}
+
+.newTweetContent {
+  white-space: pre-line !important;
+  line-height: 1.2 !important;
+}
+
+.tweetContainer {
+  // margin-bottom: -16px !important;
+  border: none;
+}
+
+.tweetContainer:hover {
+  background-color: #121212 !important;
+}
+
+// .tweetIcons {
+//   margin-left: -10px !important;
+// }
+
+// .tweetIconsEnd {
+//   margin-right: -26px !important;
+// }
+
+// @media screen and (max-width: 1281px) {
+//   q-drawer-content .left-drawer {
+//     width: 200px !important;
+//   }
+// }

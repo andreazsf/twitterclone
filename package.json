@@ -16,6 +16,7 @@
   "dependencies": {
     "@quasar/extras": "^1.16.4",
     "axios": "^1.2.1",
+    "date-fns": "^3.3.1",
     "quasar": "^2.6.0",
     "volar-service-vetur": "^0.0.30",
     "vue": "^3.0.0",
