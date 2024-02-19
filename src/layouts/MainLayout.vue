@@ -186,7 +186,7 @@
               />
             </q-item-section>
           </q-item>
-          <q-item clickable class="q-my-xs rounded-border-b">
+          <q-item clickable class="q-my-xs">
             <q-item-section>
               <q-item-label caption class="text-grey-7"
                 >Trending in Philippines</q-item-label
