@@ -171,7 +171,7 @@
         <div
           class="tweetContainer text-18 cursor-pointer"
           v-for="tweet in tweets"
-          :key="tweet.date"
+          :key="tweet.id"
         >
           <q-separator color="grey-9" />
           <q-list
@@ -222,16 +222,24 @@
                 size="20px"
               />
             </q-btn>
-            <q-btn rounded dense no-caps :ripple="false">
+            <q-btn
+              rounded
+              dense
+              no-caps
+              :ripple="false"
+              class="grey-8"
+              :style="{ color: tweet.liked ? 'red' : '' }"
+              @click="toggleLike(tweet.id)"
+            >
               <q-icon
-                name="favorite_border"
+                :name="tweet.liked ? 'favorite' : 'favorite_border'"
                 class="q-pa-xs material-icons-outlined"
                 size="20px"
               />
             </q-btn>
             <q-btn rounded dense no-caps :ripple="false">
               <q-icon
-                @click="deleteTweet(tweet)"
+                @click="deleteTweet(tweet.id)"
                 name="delete"
                 class="q-pa-xs material-icons-outlined"
                 size="20px"
@@ -270,30 +278,27 @@
 </template>
 
 <script>
-import { ref, computed } from "vue";
+import { ref } from "vue";
 import { formatDistance } from "date-fns";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  getDoc,
+  addDoc,
+  deleteDoc,
+  doc,
+  orderBy,
+  updateDoc,
+} from "firebase/firestore/lite";
+import db from "../boot/firebase";
 
 export default {
   name: "PgHome",
   setup() {
     const newTweet = ref("");
     const isClicked = ref(false);
-    const tweets = ref([
-      {
-        content: "This is a test.",
-        date: 1708348559786,
-      },
-      {
-        content:
-          "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quaerat facilis sint, corporis, magnam ab esse praesentium animi numquam deserunt delectus illo laborum distinctio temporibus voluptates ratione consequuntur laboriosam expedita asperiores!",
-        date: 1708348609003,
-      },
-      {
-        content:
-          "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quaerat facilis sint, corporis, magnam ab esse praesentium animi numquam deserunt delectus illo laborum distinctio temporibus voluptates ratione consequuntur laboriosam expedita asperiores!",
-        date: 1708350162490,
-      },
-    ]);
+    const tweets = ref([]);
 
     const toggleInput = () => {
       isClicked.value = !isClicked.value;
@@ -307,22 +312,80 @@ export default {
       return formatDistance(value, new Date());
     };
 
-    const addNewTweet = () => {
-      const newTweetContent = {
-        content: newTweet.value,
-        date: Date.now(),
-      };
-      tweets.value.unshift(newTweetContent);
-      // Reset the new tweet input after adding
-      newTweet.value = "";
-    };
-
-    const deleteTweet = (tweet) => {
-      const index = tweets.value.findIndex((t) => t.date === tweet.date);
-      if (index !== -1) {
-        tweets.value.splice(index, 1);
+    const addNewTweet = async () => {
+      const tweetContent = newTweet.value.trim();
+      if (tweetContent !== "") {
+        try {
+          const tweetRef = await addDoc(collection(db, "tweets"), {
+            content: tweetContent,
+            date: new Date().toISOString(),
+            liked: false, // Initialize liked field to false
+          });
+          const newTweetData = {
+            id: tweetRef.id,
+            content: tweetContent,
+            date: new Date().toISOString(),
+            liked: false, // Initialize liked field in local tweet data
+          };
+          tweets.value.unshift(newTweetData);
+          newTweet.value = ""; // Reset input field
+        } catch (error) {
+          console.error("Error adding document: ", error);
+        }
       }
     };
+
+    const deleteTweet = async (tweetId) => {
+      try {
+        await deleteDoc(doc(db, "tweets", tweetId));
+        tweets.value = tweets.value.filter((tweet) => tweet.id !== tweetId);
+      } catch (error) {
+        console.error("Error deleting document: ", error);
+      }
+    };
+
+    const toggleLike = async (tweetId) => {
+      try {
+        const tweetRef = doc(db, "tweets", tweetId);
+        const tweetDoc = await getDoc(tweetRef);
+        if (tweetDoc.exists()) {
+          const currentLikedStatus = tweetDoc.data().liked;
+          const updatedLikedStatus = !currentLikedStatus; // Toggle liked status
+          // Update liked status in Firestore
+          await updateDoc(tweetRef, { liked: updatedLikedStatus });
+          // Update liked status in local tweets array
+          const updatedTweets = tweets.value.map((tweet) => {
+            if (tweet.id === tweetId) {
+              return { ...tweet, liked: updatedLikedStatus };
+            } else {
+              return tweet;
+            }
+          });
+          tweets.value = updatedTweets;
+        } else {
+          console.error("Tweet document not found");
+        }
+        await nextTick();
+      } catch (error) {
+        console.error("Error toggling like: ", error);
+      }
+    };
+
+    // Fetch tweets from Firestore
+    const fetchTweets = async () => {
+      const querySnapshot = await getDocs(collection(db, "tweets"));
+      const fetchedTweets = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      // Sort tweets by date in descending order
+      tweets.value = fetchedTweets.sort(
+        (a, b) => new Date(b.date) - new Date(a.date)
+      );
+    };
+
+    // Fetch tweets on component mount
+    fetchTweets();
 
     return {
       newTweet,
@@ -333,6 +396,7 @@ export default {
       relativeDate,
       addNewTweet,
       deleteTweet,
+      toggleLike,
     };
   },
 };
